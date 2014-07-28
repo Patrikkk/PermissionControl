@@ -40,8 +40,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="TerrariaServer">
       <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\..\..\..\Desktop\TShock.1241\TerrariaServer.exe</HintPath>
     </Reference>
-    <Reference Include="TShockAPI" />
+    <Reference Include="TShockAPI">
+      <HintPath>..\..\..\..\Desktop\TShock.1241\ServerPlugins\TShockAPI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PermControl.cs" />

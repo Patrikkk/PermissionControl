@@ -15,7 +15,7 @@ namespace PermissionControl
         public override string Name { get { return "PermControl"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "Searches for commands/permissions within groups."; } }
-        public override Version Version { get { return new Version(1, 0, 1, 8); } }
+        public override Version Version { get { return new Version(1, 1, 0, 0); } }
 
         public PermControl(Main game)
             : base(game)
@@ -42,8 +42,6 @@ namespace PermissionControl
         #region Hooks
         private void OnInitialize(EventArgs args)
         {
-            Commands.ChatCommands.Add(new Command("permcontrol", SCommand, "searchcommand") { HelpText = "Searches for a specified command." });
-            Commands.ChatCommands.Add(new Command("permcontrol", SearchPerm, "searchperm") { HelpText = "Searches for a specified permission." });
             Commands.ChatCommands.Add(new Command("permcontrol", SearchCommandInGroup, "searchgcommand") { HelpText = "Provides a list of groups with a certain command." });
             Commands.ChatCommands.Add(new Command("permcontrol", SearchPermInGroup, "searchgperm") { HelpText = "Provides a list of groups with a certain permission." });
             Commands.ChatCommands.Add(new Command("permcontrol", findPlugins, "pluginlist") { HelpText = "Provides a list of permissions from plugin-provided commands." });
@@ -51,79 +49,6 @@ namespace PermissionControl
         #endregion
 
         #region Search Commands
-        public void SCommand(CommandArgs args)
-        {
-            if (args.Parameters.Count > 0)
-            {
-                List<string> commandNameList = new List<string>();
-
-                foreach (Command command in Commands.ChatCommands)
-                {
-                    for (int i = 0; i < command.Permissions.Count; i++)
-                    {
-                        if (args.Player.Group.HasPermission(command.Permissions[i]))
-                            foreach (string commandName in command.Names)
-                            {
-                                bool showCommand = true;
-                                foreach (string searchParameter in args.Parameters)
-                                {
-                                    if (!commandName.Contains(searchParameter))
-                                    {
-                                        showCommand = false;
-                                        break;
-                                    }
-                                }
-                                if (showCommand && !commandNameList.Contains(commandName))
-                                    commandNameList.Add(command.Name);
-                            }
-                    }
-                }
-                if (commandNameList.Count > 0)
-                {
-                    args.Player.SendMessage("The following commands matched your search:", Color.Yellow);
-                    for (int i = 0; i < commandNameList.Count && i < 6; i++)
-                    {
-                        string returnLine = "";
-
-                        for (int j = 0; j < commandNameList.Count - i * 5 && j < 5; j++)
-                        {
-                            if (i * 5 + j + 1 < commandNameList.Count)
-                                returnLine += commandNameList[i * 5 + j] + ", ";
-
-                            else
-                                returnLine += commandNameList[i * 5 + j] + ".";
-                        }
-                        args.Player.SendInfoMessage(returnLine);
-                    }
-                }
-                else
-                    args.Player.SendErrorMessage("No Commands matched your search term(s).");
-            }
-            else
-                args.Player.SendErrorMessage("Invalid syntax: /searchcommand <command>");
-        }
-
-        public void SearchPerm(CommandArgs args)
-        {
-            if (args.Parameters.Count > 0)
-            {
-                foreach (Command cmd in TShockAPI.Commands.ChatCommands)
-                {
-                    if (cmd.Names.Contains(args.Parameters[0]))
-                    {
-                        args.Player.SendInfoMessage(string.Format("Permission to use {0}: {1}",
-                            cmd.Name, cmd.Permissions.Count > 0 ? cmd.Permissions[0] : "Nothing"));
-                        return;
-                    }
-                }
-                args.Player.SendErrorMessage("Command not found.");
-            }
-            else
-            {
-                args.Player.SendErrorMessage("Invalid syntax: /searchperm <command>");
-            }
-        }
-
         public void SearchCommandInGroup(CommandArgs args)
         {
             if (args.Parameters.Count == 0)
@@ -157,13 +82,7 @@ namespace PermissionControl
             else if (therealcommand.Count > 1)
             {
                 args.Player.SendErrorMessage("Multiple commands found:");
-                string errorcommands = "";
-                for (int i = 0; i < therealcommand.Count; i++)
-                {
-                    errorcommands += therealcommand[i].Name;
-                    if (i + 1 < therealcommand.Count)
-                        errorcommands += " ";
-                }
+                string errorcommands = string.Join(", ", therealcommand.Select(p => p.Name));
                 args.Player.SendErrorMessage(errorcommands);
             }
             else
@@ -187,13 +106,7 @@ namespace PermissionControl
                     }
                 }
 
-                string outputgroupswithperm = "";
-                for (int i = 0; i < groupswithperm.Count; i++)
-                {
-                    outputgroupswithperm += groupswithperm[i];
-                    if ((i + 1) < groupswithperm.Count)
-                        outputgroupswithperm += " ";
-                }
+                string outputgroupswithperm = string.Join(", ", groupswithperm.Select(p => p));
                 args.Player.SendInfoMessage("Groups with the " + therealcommand[0].Name + " command:");
                 args.Player.SendInfoMessage(outputgroupswithperm);
             }
@@ -217,13 +130,7 @@ namespace PermissionControl
                     groupswithperms.Add(group.Name);
             }
 
-            string outputgroupswithperms = "";
-            for (int i = 0; i < groupswithperms.Count; i++)
-            {
-                outputgroupswithperms += groupswithperms[i];
-                if (i + 1 < groupswithperms.Count)
-                    outputgroupswithperms += " ";
-            }
+            string outputgroupswithperms = string.Join(", ", groupswithperms.Select(p => p));
 
             args.Player.SendInfoMessage("Groups with the " + perms + " permission:");
             args.Player.SendInfoMessage(outputgroupswithperms);
