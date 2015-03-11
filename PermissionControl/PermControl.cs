@@ -9,13 +9,13 @@ using TShockAPI;
 
 namespace PermissionControl
 {
-    [ApiVersion(1,16)]
+    [ApiVersion(1,17)]
     public class PermControl : TerrariaPlugin
     {
         public override string Name { get { return "PermControl"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "Searches for commands/permissions within groups."; } }
-        public override Version Version { get { return new Version(1, 0, 1, 8); } }
+        public override Version Version { get { return new Version(1, 0, 2, 0); } }
 
         public PermControl(Main game)
             : base(game)
@@ -80,7 +80,7 @@ namespace PermissionControl
                 }
                 if (commandNameList.Count > 0)
                 {
-                    args.Player.SendMessage("The following commands matched your search:", Color.Yellow);
+                    args.Player.SendInfoMessage("The following commands matched your search:");
                     for (int i = 0; i < commandNameList.Count && i < 6; i++)
                     {
                         string returnLine = "";
@@ -100,7 +100,7 @@ namespace PermissionControl
                     args.Player.SendErrorMessage("No Commands matched your search term(s).");
             }
             else
-                args.Player.SendErrorMessage("Invalid syntax: /searchcommand <command>");
+                args.Player.SendErrorMessage("Invalid syntax: {0}searchcommand <command>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
         }
 
         public void SearchPerm(CommandArgs args)
@@ -120,7 +120,7 @@ namespace PermissionControl
             }
             else
             {
-                args.Player.SendErrorMessage("Invalid syntax: /searchperm <command>");
+				args.Player.SendErrorMessage("Invalid syntax: {0}searchperm <command>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
             }
         }
 
@@ -128,7 +128,7 @@ namespace PermissionControl
         {
             if (args.Parameters.Count == 0)
             {
-                args.Player.SendErrorMessage("Invalid syntax: /searchgcommand <command>");
+				args.Player.SendErrorMessage("Invalid syntax: {0}searchgcommand <command>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
                 return;
             }
 
@@ -156,18 +156,16 @@ namespace PermissionControl
             }
             else if (therealcommand.Count > 1)
             {
-                args.Player.SendErrorMessage("Multiple commands found:");
-                string errorcommands = "";
-                for (int i = 0; i < therealcommand.Count; i++)
-                {
-                    errorcommands += therealcommand[i].Name;
-                    if (i + 1 < therealcommand.Count)
-                        errorcommands += " ";
-                }
-                args.Player.SendErrorMessage(errorcommands);
+				TShock.Utils.SendMultipleMatchError(args.Player, therealcommand.Select(p => p.Name));
             }
             else
             {
+				var perms = (from thegroup in TShock.Groups where (therealcommand[0].Permissions.Count > 0 ? thegroup.HasPermission(therealcommand[0].Permissions[0]) : true) select thegroup.Name);
+
+				args.Player.SendInfoMessage("Groups with the " + therealcommand[0].Name + " command:");
+				args.Player.SendInfoMessage(string.Join(", ", perms));
+
+				/*
                 Command therealrealcommand = therealcommand[0];
                 List<string> groupswithperm = new List<string>();
                 string permname;
@@ -196,6 +194,7 @@ namespace PermissionControl
                 }
                 args.Player.SendInfoMessage("Groups with the " + therealcommand[0].Name + " command:");
                 args.Player.SendInfoMessage(outputgroupswithperm);
+				 */
             }
         }
 
@@ -203,12 +202,17 @@ namespace PermissionControl
         {
             if (args.Parameters.Count != 1)
             {
-                args.Player.SendErrorMessage("Invalid syntax: /searchgperm <permission>");
+				args.Player.SendErrorMessage("Invalid syntax: {0}searchgperm <permission>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
                 return;
             }
 
             string perms = args.Parameters[0];
 
+			var glist = (from thegroup in TShock.Groups where thegroup.HasPermission(perms) select thegroup.Name);
+
+			args.Player.SendInfoMessage("Groups with the " + perms + " permission:");
+			args.Player.SendInfoMessage(string.Join(", ", glist));
+			/*
             List<string> groupswithperms = new List<string>();
 
             foreach (TShockAPI.Group group in TShock.Groups)
@@ -227,6 +231,7 @@ namespace PermissionControl
 
             args.Player.SendInfoMessage("Groups with the " + perms + " permission:");
             args.Player.SendInfoMessage(outputgroupswithperms);
+			 */
         }
         #endregion
 
@@ -237,29 +242,17 @@ namespace PermissionControl
 
             foreach (Command command in Commands.ChatCommands)
             {
-                try
+                if (command.Permissions.Count > 0)
                 {
                     var perm = command.Permissions[0].Split('.');
 
-                    if (!perm[0].StartsWith("tshock") && !plugincommands.Contains(perm[0]))
+                    if (perm[0] != "tshock" && !plugincommands.Contains(perm[0]))
                         plugincommands.Add(perm[0]);
                 }
-                catch
-                {
-                }
-            }
-
-            string listofcommands = "";
-
-            for (int i = 0; i < plugincommands.Count; i++)
-            {
-                listofcommands += plugincommands[i];
-                if (i + 1 < plugincommands.Count)
-                    listofcommands += " ";
             }
 
             args.Player.SendInfoMessage("Command permissions that do not start with tshock:");
-            args.Player.SendInfoMessage(listofcommands);
+			args.Player.SendInfoMessage(string.Join(", ", plugincommands));
         }
         #endregion
     }
