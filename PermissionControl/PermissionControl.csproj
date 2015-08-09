@@ -37,10 +37,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="TerrariaServer">
-      <HintPath>..\..\..\..\Desktop\TShock 4.3.6 Pre-Release\TerrariaServer.exe</HintPath>
+      <HintPath>..\..\..\..\Desktop\TShock 4.3.8\TerrariaServer.exe</HintPath>
     </Reference>
     <Reference Include="TShockAPI">
-      <HintPath>..\..\..\..\Desktop\TShock 4.3.6 Pre-Release\ServerPlugins\TShockAPI.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\TShock 4.3.8\ServerPlugins\TShockAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
