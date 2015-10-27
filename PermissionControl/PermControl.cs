@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Terraria;
-using TerrariaApi;
 using TerrariaApi.Server;
 using TShockAPI;
 
 namespace PermissionControl
 {
-    [ApiVersion(1,21)]
+    [ApiVersion(1,22)]
     public class PermControl : TerrariaPlugin
     {
         public override string Name { get { return "PermControl"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "Searches for commands/permissions within groups."; } }
-        public override Version Version { get { return new Version(1, 3, 1, 0); } }
+        public override Version Version { get { return new Version(1, 3, 2, 0); } }
 
         public PermControl(Main game)
             : base(game)
