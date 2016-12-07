@@ -8,7 +8,7 @@ using TShockAPI;
 
 namespace PermissionControl
 {
-    [ApiVersion(1,25)]
+    [ApiVersion(1,26)]
     public class PermControl : TerrariaPlugin
     {
         public override string Name { get { return "PermControl"; } }
