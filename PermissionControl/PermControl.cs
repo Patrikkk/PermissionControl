@@ -155,7 +155,7 @@ namespace PermissionControl
             }
             else if (therealcommand.Count > 1)
             {
-				TShock.Utils.SendMultipleMatchError(args.Player, therealcommand.Select(p => p.Name));
+                args.Player.SendMultipleMatchError(therealcommand.Select(p => p.Name));
             }
             else
             {
